@@ -1,0 +1,44 @@
+digraph G {
+"sequence_node1" [label="sequence_node",color=lightblue,style=filled,font=6];
+"size2" [label="size (1)",color=yellow,style=filled,font=6];
+"program_node4" [label="program_node",color=lightblue,style=filled,font=6];
+"block_node5" [label="block_node",color=lightblue,style=filled,font=6];
+"declarations6" [label="declarations",color=lightblue,style=filled,font=6];
+"sequence_node7" [label="sequence_node",color=lightblue,style=filled,font=6];
+"size8" [label="size (1)",color=yellow,style=filled,font=6];
+"variable_declaration_node10" [label="variable_declaration_node",color=lightblue,style=filled,font=6];
+"name11" [label="name (y)",color=yellow,style=filled,font=6];
+"qualifier13" [label="qualifier (private)",color=yellow,style=filled,font=6];
+"type15" [label="type (integer)",color=yellow,style=filled,font=6];
+"initializer17" [label="initializer",color=lightblue,style=filled,font=6];
+"integer_node18" [label="integer_node",color=lightblue,style=filled,font=6];
+"119" [label="1",color=pink,style=filled,font=6];
+"instructions20" [label="instructions",color=lightblue,style=filled,font=6];
+"sequence_node21" [label="sequence_node",color=lightblue,style=filled,font=6];
+"size22" [label="size (2)",color=yellow,style=filled,font=6];
+"return_node24" [label="return_node",color=lightblue,style=filled,font=6];
+"retval25" [label="retval",color=lightblue,style=filled,font=6];
+"integer_node26" [label="integer_node",color=lightblue,style=filled,font=6];
+"027" [label="0",color=pink,style=filled,font=6];
+
+"sequence_node1" -> "size2";
+"sequence_node7" -> "size8";
+"variable_declaration_node10" -> "name11";
+"variable_declaration_node10" -> "qualifier13";
+"variable_declaration_node10" -> "type15";
+"integer_node18" -> "119";
+"initializer17" -> "integer_node18";
+"variable_declaration_node10" -> "initializer17";
+"sequence_node7" -> "variable_declaration_node10";
+"declarations6" -> "sequence_node7";
+"block_node5" -> "declarations6";
+"sequence_node21" -> "size22";
+"integer_node26" -> "027";
+"retval25" -> "integer_node26";
+"return_node24" -> "retval25";
+"sequence_node21" -> "return_node24";
+"instructions20" -> "sequence_node21";
+"block_node5" -> "instructions20";
+"program_node4" -> "block_node5";
+"sequence_node1" -> "program_node4";
+}

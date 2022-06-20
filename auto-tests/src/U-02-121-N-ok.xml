@@ -1,0 +1,222 @@
+<sequence_node size='3'>
+  <variable_declaration_node name='f' qualifier='private' type='var'>
+  <initializer>
+      <function_definition_node type='integer'>
+        <arguments>
+          <sequence_node size='1'>
+            <variable_declaration_node name='i' qualifier='private' type='integer'>
+            </variable_declaration_node>
+          </sequence_node>
+        </arguments>
+        <block>
+          <block_node>
+            <instructions>
+              <sequence_node size='1'>
+                <return_node>
+                  <retval>
+                    <add_node>
+                      <rvalue_node>
+                          <variable_node>i</variable_node>
+                      </rvalue_node>
+                      <integer_node>1</integer_node>
+                    </add_node>
+                  </retval>
+                </return_node>
+              </sequence_node>
+            </instructions>
+          </block_node>
+        </block>
+      </function_definition_node>
+  </initializer>
+  </variable_declaration_node>
+  <variable_declaration_node name='g' qualifier='private' type='var'>
+  <initializer>
+      <function_definition_node type='integer'>
+        <arguments>
+          <sequence_node size='2'>
+            <variable_declaration_node name='n' qualifier='private' type='integer'>
+            </variable_declaration_node>
+            <variable_declaration_node name='fun' qualifier='private' type='(unknown or unsupported type)'>
+            </variable_declaration_node>
+          </sequence_node>
+        </arguments>
+        <block>
+          <block_node>
+            <instructions>
+              <sequence_node size='1'>
+                <return_node>
+                  <retval>
+                    <function_call_node>
+                    <expr>
+                        <rvalue_node>
+                            <variable_node>fun</variable_node>
+                        </rvalue_node>
+                    </expr>
+                    <arguments>
+                        <sequence_node size='1'>
+                          <rvalue_node>
+                              <variable_node>n</variable_node>
+                          </rvalue_node>
+                        </sequence_node>
+                    </arguments>
+                    </function_call_node>
+                  </retval>
+                </return_node>
+              </sequence_node>
+            </instructions>
+          </block_node>
+        </block>
+      </function_definition_node>
+  </initializer>
+  </variable_declaration_node>
+  <program_node>
+      <block_node>
+        <instructions>
+          <sequence_node size='4'>
+            <print_node>
+              <sequence_node size='1'>
+                <function_call_node>
+                <expr>
+                    <rvalue_node>
+                        <variable_node>g</variable_node>
+                    </rvalue_node>
+                </expr>
+                <arguments>
+                    <sequence_node size='2'>
+                      <integer_node>3</integer_node>
+                      <rvalue_node>
+                          <variable_node>f</variable_node>
+                      </rvalue_node>
+                    </sequence_node>
+                </arguments>
+                </function_call_node>
+              </sequence_node>
+            </print_node>
+            <print_node>
+              <sequence_node size='1'>
+                <function_call_node>
+                <expr>
+                    <rvalue_node>
+                        <variable_node>g</variable_node>
+                    </rvalue_node>
+                </expr>
+                <arguments>
+                    <sequence_node size='2'>
+                      <integer_node>3</integer_node>
+                      <function_definition_node type='integer'>
+                        <arguments>
+                          <sequence_node size='1'>
+                            <variable_declaration_node name='i' qualifier='private' type='integer'>
+                            </variable_declaration_node>
+                          </sequence_node>
+                        </arguments>
+                        <block>
+                          <block_node>
+                            <instructions>
+                              <sequence_node size='1'>
+                                <return_node>
+                                  <retval>
+                                    <mul_node>
+                                      <rvalue_node>
+                                          <variable_node>i</variable_node>
+                                      </rvalue_node>
+                                      <integer_node>2</integer_node>
+                                    </mul_node>
+                                  </retval>
+                                </return_node>
+                              </sequence_node>
+                            </instructions>
+                          </block_node>
+                        </block>
+                      </function_definition_node>
+                    </sequence_node>
+                </arguments>
+                </function_call_node>
+              </sequence_node>
+            </print_node>
+            <print_node>
+              <sequence_node size='1'>
+                <function_call_node>
+                <expr>
+                    <rvalue_node>
+                        <variable_node>g</variable_node>
+                    </rvalue_node>
+                </expr>
+                <arguments>
+                    <sequence_node size='2'>
+                      <function_call_node>
+                      <expr>
+                          <function_definition_node type='integer'>
+                            <arguments>
+                              <sequence_node size='1'>
+                                <variable_declaration_node name='i' qualifier='private' type='integer'>
+                                </variable_declaration_node>
+                              </sequence_node>
+                            </arguments>
+                            <block>
+                              <block_node>
+                                <instructions>
+                                  <sequence_node size='1'>
+                                    <return_node>
+                                      <retval>
+                                        <add_node>
+                                          <integer_node>7</integer_node>
+                                          <rvalue_node>
+                                              <variable_node>i</variable_node>
+                                          </rvalue_node>
+                                        </add_node>
+                                      </retval>
+                                    </return_node>
+                                  </sequence_node>
+                                </instructions>
+                              </block_node>
+                            </block>
+                          </function_definition_node>
+                      </expr>
+                      <arguments>
+                          <sequence_node size='1'>
+                            <integer_node>8</integer_node>
+                          </sequence_node>
+                      </arguments>
+                      </function_call_node>
+                      <function_definition_node type='integer'>
+                        <arguments>
+                          <sequence_node size='1'>
+                            <variable_declaration_node name='i' qualifier='private' type='integer'>
+                            </variable_declaration_node>
+                          </sequence_node>
+                        </arguments>
+                        <block>
+                          <block_node>
+                            <instructions>
+                              <sequence_node size='1'>
+                                <return_node>
+                                  <retval>
+                                    <mul_node>
+                                      <rvalue_node>
+                                          <variable_node>i</variable_node>
+                                      </rvalue_node>
+                                      <integer_node>2</integer_node>
+                                    </mul_node>
+                                  </retval>
+                                </return_node>
+                              </sequence_node>
+                            </instructions>
+                          </block_node>
+                        </block>
+                      </function_definition_node>
+                    </sequence_node>
+                </arguments>
+                </function_call_node>
+              </sequence_node>
+            </print_node>
+            <return_node>
+              <retval>
+                <integer_node>0</integer_node>
+              </retval>
+            </return_node>
+          </sequence_node>
+        </instructions>
+      </block_node>
+  </program_node>
+</sequence_node>
