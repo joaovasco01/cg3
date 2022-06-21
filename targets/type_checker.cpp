@@ -76,7 +76,7 @@ void l22::type_checker::do_ScalarLogicalExpression(cdk::binary_operation_node *c
   node->type(cdk::primitive_type::create(4, cdk::TYPE_INT));
 }
 
-/*void l22::type_checker::do_GeneralLogicalExpression(cdk::binary_operation_node *const node, int lvl)
+void l22::type_checker::do_GeneralLogicalExpression(cdk::binary_operation_node *const node, int lvl)
 {
   ASSERT_UNSPEC;
   node->left()->accept(this, lvl + 2);
@@ -99,7 +99,7 @@ void l22::type_checker::do_ScalarLogicalExpression(cdk::binary_operation_node *c
     if (readr != nullptr)
       node->left()->type(cdk::primitive_type::create(8, cdk::TYPE_DOUBLE));
     else
-      throw std::string("Unknown node with unspecified type.");
+      throw std::string("Unspecified type.");
   }
 
   if (node->left()->is_typed(cdk::TYPE_POINTER) && node->right()->is_typed(cdk::TYPE_POINTER))
@@ -108,12 +108,12 @@ void l22::type_checker::do_ScalarLogicalExpression(cdk::binary_operation_node *c
   {
     if (!((node->left()->is_typed(cdk::TYPE_DOUBLE) && node->right()->is_typed(cdk::TYPE_DOUBLE)) ||
           (node->left()->is_typed(cdk::TYPE_INT) && node->right()->is_typed(cdk::TYPE_INT))))
-      throw std::string("Operator has incompatible types.");
+      throw std::string("Incompatible types.");
   }
   node->type(cdk::primitive_type::create(4, cdk::TYPE_INT));
-}*/
+}
 
-/*std::shared_ptr<cdk::basic_type> l22::type_checker::typeOfPointer(std::shared_ptr<cdk::reference_type> leftPtr, std::shared_ptr<cdk::reference_type> rightPtr)
+std::shared_ptr<cdk::basic_type> l22::type_checker::typeOfPointer(std::shared_ptr<cdk::reference_type> leftPtr, std::shared_ptr<cdk::reference_type> rightPtr)
 {
   std::shared_ptr<cdk::basic_type> left, right;
   left = leftPtr;
@@ -130,10 +130,10 @@ void l22::type_checker::do_ScalarLogicalExpression(cdk::binary_operation_node *c
   else if (left->name() == cdk::TYPE_DOUBLE && right->name() == cdk::TYPE_DOUBLE)
     return cdk::primitive_type::create(8, cdk::TYPE_DOUBLE);
   else if (left->name() == cdk::TYPE_STRING && right->name() == cdk::TYPE_STRING)
-    return cdk::make_primitive_type(4, cdk::TYPE_STRING);
-  else // FIXME AUTO
+    return cdk::primitive_type::create(4, cdk::TYPE_STRING);
+  else
     throw std::string("Wrong pointer type.");
-}*/
+}
 
 void l22::type_checker::do_sequence_node(cdk::sequence_node *const node, int lvl)
 {
@@ -286,13 +286,11 @@ void l22::type_checker::do_gt_node(cdk::gt_node *const node, int lvl)
 }
 void l22::type_checker::do_ne_node(cdk::ne_node *const node, int lvl)
 {
-  // do_GeneralLogicalExpression(node, lvl);
-  processBinaryExpression(node, lvl);
+  do_GeneralLogicalExpression(node, lvl);
 }
 void l22::type_checker::do_eq_node(cdk::eq_node *const node, int lvl)
 {
-  // do_GeneralLogicalExpression(node, lvl);
-  processBinaryExpression(node, lvl);
+  do_GeneralLogicalExpression(node, lvl);
 }
 //---
 
@@ -306,7 +304,11 @@ void l22::type_checker::do_again_node(l22::again_node *const node, int lvl)
 }
 void l22::type_checker::do_block_node(l22::block_node *const node, int lvl)
 {
-  /* EMPTY */
+  if (node->declarations())
+    node->declarations()->accept(this, lvl + 2);
+
+  if (node->instructions())
+    node->instructions()->accept(this, lvl + 2);
 }
 void l22::type_checker::do_function_call_node(l22::function_call_node *const node, int lvl)
 {
@@ -318,23 +320,90 @@ void l22::type_checker::do_function_definition_node(l22::function_definition_nod
 }
 void l22::type_checker::do_index_node(l22::index_node *const node, int lvl)
 {
-  /* EMPTY */
+  ASSERT_UNSPEC;
+  node->base()->accept(this, lvl + 2);
+  if (!node->base()->is_typed(cdk::TYPE_POINTER))
+    throw std::string("Lvalue must be a pointer.");
+
+  node->index()->accept(this, lvl + 2);
+  if (node->index()->is_typed(cdk::TYPE_UNSPEC))
+  {
+    l22::read_node *read = dynamic_cast<l22::read_node *>(node->index());
+
+    if (read != nullptr)
+      node->index()->type(cdk::primitive_type::create(4, cdk::TYPE_INT));
+    else
+      throw std::string("Unspecified type.");
+  }
+  else if (!node->index()->is_typed(cdk::TYPE_INT))
+    throw std::string("Not an integer expression - Index!.");
+
+  node->type(cdk::reference_type::cast(node->base()->type())->referenced());
 }
 void l22::type_checker::do_nullptr_node(l22::nullptr_node *const node, int lvl)
 {
-  /* EMPTY */
+  ASSERT_UNSPEC;
+  node->type(cdk::reference_type::create(4, nullptr));
 }
 void l22::type_checker::do_return_node(l22::return_node *const node, int lvl)
 {
-  /* EMPTY */
+  if (node->retval())
+  {
+    if (_function->type()->name() == cdk::TYPE_VOID)
+      throw std::string("Void function cannot return values.");
+
+    node->retval()->accept(this, lvl + 2);
+
+    if (_function->type()->name() == cdk::TYPE_INT)
+    {
+      if (!node->retval()->is_typed(cdk::TYPE_INT))
+        throw std::string("Wrong type for initializer (integer expected).");
+    }
+    else if (_function->type()->name() == cdk::TYPE_DOUBLE)
+    {
+      if (!node->retval()->is_typed(cdk::TYPE_INT) &&
+          !node->retval()->is_typed(cdk::TYPE_DOUBLE))
+        throw std::string("Wrong type for initializer (integer or double expected).");
+    }
+    else if (_function->type()->name() == cdk::TYPE_STRING)
+    {
+      if (!node->retval()->is_typed(cdk::TYPE_STRING))
+        throw std::string("Wrong type for initializer (string expected).");
+    }
+    else if (_function->type()->name() == cdk::TYPE_POINTER)
+    {
+      /*typeOfPointer(cdk::reference_type::cast(node->retval()->type()),
+                    cdk::reference_type::cast(_function->type()));*/
+    }
+    else
+    {
+      throw std::string("Unknown type for return expression.");
+    }
+  }
 }
 void l22::type_checker::do_sizeof_node(l22::sizeof_node *const node, int lvl)
 {
-  /* EMPTY */
+  ASSERT_UNSPEC;
+  node->expression()->accept(this, lvl + 2);
+  node->type(cdk::primitive_type::create(4, cdk::TYPE_INT));
 }
 void l22::type_checker::do_stack_alloc_node(l22::stack_alloc_node *const node, int lvl)
 {
-  /* EMPTY */
+  ASSERT_UNSPEC;
+  node->argument()->accept(this, lvl + 2);
+  if (node->argument()->is_typed(cdk::TYPE_UNSPEC))
+  {
+    l22::read_node *read = dynamic_cast<l22::read_node *>(node->argument());
+
+    if (read != nullptr)
+      node->argument()->type(cdk::primitive_type::create(4, cdk::TYPE_INT));
+    else
+      throw std::string("Unspecified type.");
+  }
+  else if (!node->argument()->is_typed(cdk::TYPE_INT))
+    throw std::string("Integer was expected - allocation expression.");
+
+  node->type(cdk::primitive_type::create(0, cdk::TYPE_UNSPEC));
 }
 void l22::type_checker::do_stop_node(l22::stop_node *const node, int lvl)
 {
@@ -346,7 +415,7 @@ void l22::type_checker::do_variable_declaration_node(l22::variable_declaration_n
 }
 void l22::type_checker::do_identity_node(l22::identity_node *const node, int lvl)
 {
-  /* EMPTY */
+  processUnaryExpression(node, lvl);
 }
 
 //---------------------------------------------------------------------------

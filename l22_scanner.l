@@ -38,8 +38,16 @@ SPACE     [ \t]
 INT       [[:digit:]]+
 LETTER  [A-Za-z]
 
+
 %x X_STRING X_NEWLINE X_COMMENT X_SPECIALSEQ
+
+DIGIT                [0-9]
+EXPONENT             [eE][-+]?{DIGIT}+
+REAL                 {DIGIT}+{EXPONENT}|({DIGIT}+"."{DIGIT}*|{DIGIT}*"."{DIGIT}+){EXPONENT}?
+
+
 %%
+
 
   {
     yydebug=1; set_debug(1);
@@ -247,14 +255,12 @@ LETTER  [A-Za-z]
                     } catch (std::out_of_range& e) { yyerror("Integer out of range."); }
                   }
                             
-
  /*-----------------Reais----------------*/  
 
-([0-9]*\.[0-9]+|[0-9]+\.[0-9])([Ee]([-+])?[0-9]+)? { 
-                                                      try { yylval.d = strtod(yytext, NULL); 
-                                                        return tREAL; 
-                                                      } catch (std::out_of_range& e) { yyerror("Real out of range."); }
-                                                    }
+{REAL}               		 	{ yylval.d = strtod(yytext, nullptr);		
+                            if(errno == ERANGE) yyerror(""); 
+                            return tREAL;
+                          }
 
  /*-----------Chars----------------*/
 
@@ -264,7 +270,7 @@ LETTER  [A-Za-z]
 
 
 
-[ ]        ; /* ignore remaining white space inside the program */
+[ ]         ;/* ignore remaining white space inside the program */
 
 .                      yyerror("Unknown character");
 
