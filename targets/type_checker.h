@@ -34,8 +34,10 @@ namespace l22
 
   protected:
     void processUnaryExpression(cdk::unary_operation_node *const node, int lvl);
+    void do_IntOnlyExpression(cdk::binary_operation_node *const node, int lvl);
     void processBinaryExpression(cdk::binary_operation_node *const node, int lvl);
     void do_BooleanLogicalExpression(cdk::binary_operation_node *const node, int lvl);
+    void do_IDExpression(cdk::binary_operation_node *const node, int lvl);
     void do_ScalarLogicalExpression(cdk::binary_operation_node *const node, int lvl);
     void do_GeneralLogicalExpression(cdk::binary_operation_node *const node, int lvl);
     std::shared_ptr<cdk::basic_type> typeOfPointer(std::shared_ptr<cdk::reference_type> left, std::shared_ptr<cdk::reference_type> right);
