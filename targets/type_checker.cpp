@@ -513,8 +513,8 @@ void l22::type_checker::do_return_node(l22::return_node *const node, int lvl)
     }
     else if (_function->type()->name() == cdk::TYPE_POINTER)
     {
-      /*typeOfPointer(cdk::reference_type::cast(node->retval()->type()),
-                    cdk::reference_type::cast(_function->type()));*/
+      typeOfPointer(cdk::reference_type::cast(node->retval()->type()),
+                    cdk::reference_type::cast(_function->type()));
     }
     else
     {
@@ -552,7 +552,127 @@ void l22::type_checker::do_stop_node(l22::stop_node *const node, int lvl)
 }
 void l22::type_checker::do_variable_declaration_node(l22::variable_declaration_node *const node, int lvl)
 {
-  /* EMPTY */
+
+  const std::string &id = node->identifier();
+  std::shared_ptr<l22::symbol> symbol = std::make_shared<l22::symbol>(node->qualifier(),
+                                                                      node->type(),
+                                                                      id,
+                                                                      true,
+                                                                      0,
+                                                                      false);
+
+  // se for var
+  if (node->type() == nullptr)
+  {
+
+    if (node->initializer() != nullptr)
+    {
+      node->initializer()->accept(this, lvl + 2);
+      node->type(node->initializer()->type());
+    }
+    else
+      throw std::string("Type not defined");
+  }
+
+  // se nao for var
+  else if (node->initializer() != nullptr)
+  {
+
+    node->initializer()->accept(this, lvl + 2);
+
+    // se for do tipo unspec
+    if (node->initializer()->is_typed(cdk::TYPE_UNSPEC))
+    {
+
+      l22::read_node *read = dynamic_cast<l22::read_node *>(node->initializer());
+      l22::stack_alloc_node *stack = dynamic_cast<l22::stack_alloc_node *>(node->initializer());
+
+      if (read != nullptr)
+      {
+
+        if (node->is_typed(cdk::TYPE_INT) || node->is_typed(cdk::TYPE_DOUBLE))
+          node->initializer()->type(node->type());
+        else
+          throw std::string("Unable to read input.");
+      }
+
+      else if (stack != nullptr)
+      {
+
+        if (node->is_typed(cdk::TYPE_POINTER))
+          node->initializer()->type(node->type());
+      }
+      else
+        throw std::string("Unknown node with unspecified type.");
+    }
+
+    // é do tipo int
+    else if (node->is_typed(cdk::TYPE_INT))
+    {
+
+      if (!node->initializer()->is_typed(cdk::TYPE_INT))
+        throw std::string("Wrong type for initializer (integer expected).");
+    }
+    // é do tipo double
+    else if (node->is_typed(cdk::TYPE_DOUBLE))
+    {
+
+      if (!node->initializer()->is_typed(cdk::TYPE_DOUBLE) && !node->initializer()->is_typed(cdk::TYPE_INT))
+        throw std::string("Wrong type for initializer (integer or double expected).");
+    }
+    // é do tipo string
+    else if (node->is_typed(cdk::TYPE_STRING))
+    {
+
+      if (!node->initializer()->is_typed(cdk::TYPE_STRING))
+        throw std::string("Wrong type for initializer (string expected).");
+    }
+    // é do tipo pointer
+    else if (node->is_typed(cdk::TYPE_POINTER))
+    {
+
+      if (!node->initializer()->is_typed(cdk::TYPE_POINTER))
+        throw std::string("Wrong type for initializer (pointer expected).");
+    }
+    else if (node->is_typed(cdk::TYPE_FUNCTIONAL))
+    {
+
+      if (!node->initializer()->is_typed(cdk::TYPE_FUNCTIONAL))
+        throw std::string("Wrong type for initializer (functional expected).");
+
+      // int<int> x = (text) -> int :
+      //                hil
+
+      std::shared_ptr<cdk::functional_type> node_type = cdk::functional_type::cast(node->type());
+      std::shared_ptr<cdk::functional_type> init_type = cdk::functional_type::cast(node->initializer()->type());
+
+      if (node_type->output(0) != init_type->output(0))
+      {
+
+        throw std::string("Outputs are of different types");
+      }
+
+      if (node_type->input_length() != init_type->input_length())
+      {
+
+        throw std::string("Error: different number of arguments");
+      }
+
+      for (size_t ax = 0; ax < node_type->input_length(); ax++)
+      {
+        if (node_type->input(ax)->name() == init_type->input(ax)->name())
+          continue;
+        if (node_type->input(ax)->name() == cdk::TYPE_INT && init_type->input(ax)->name() == cdk::TYPE_DOUBLE)
+          continue;
+
+        throw std::string("Error: mismatched arguments");
+      }
+    }
+  }
+  if (_symtab.insert(id, symbol))
+    _parent->set_new_symbol(symbol);
+  else
+    throw std::string("Variable '" + id + "' has been redeclared.");
 }
 void l22::type_checker::do_identity_node(l22::identity_node *const node, int lvl)
 {
