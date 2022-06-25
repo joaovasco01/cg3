@@ -18,7 +18,7 @@ namespace l22
   {
     cdk::symbol_table<l22::symbol> &_symtab;
     cdk::basic_postfix_emitter &_pf;
-    int _lbl;
+    int _lbl, _flbl;
     bool _inFunctionBody = false;
     bool _inFunctionArgs = false;
     std::shared_ptr<l22::symbol> _function;
@@ -29,7 +29,7 @@ namespace l22
 
   public:
     postfix_writer(std::shared_ptr<cdk::compiler> compiler, cdk::symbol_table<l22::symbol> &symtab,
-                   cdk::basic_postfix_emitter &pf) : basic_ast_visitor(compiler), _symtab(symtab), _pf(pf), _lbl(0)
+                   cdk::basic_postfix_emitter &pf) : basic_ast_visitor(compiler), _symtab(symtab), _pf(pf), _lbl(0), _flbl(0)
     {
     }
 
@@ -48,6 +48,15 @@ namespace l22
         oss << ".L" << -lbl;
       else
         oss << "_L" << lbl;
+      return oss.str();
+    }
+    inline std::string mklblf(int flbl)
+    {
+      std::ostringstream oss;
+      if (flbl < 0)
+        oss << ".F" << -flbl;
+      else
+        oss << "_F" << flbl;
       return oss.str();
     }
 

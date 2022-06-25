@@ -326,7 +326,7 @@ void l22::xml_writer::do_evaluation_node(l22::evaluation_node *const node, int l
 
 void l22::xml_writer::do_print_node(l22::print_node *const node, int lvl)
 {
-  ASSERT_SAFE_EXPRESSIONS;
+  // ASSERT_SAFE_EXPRESSIONS;
   openTag(node, lvl);
   node->argument()->accept(this, lvl + 2);
   closeTag(node, lvl);

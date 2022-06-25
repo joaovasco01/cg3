@@ -169,7 +169,11 @@ void l22::frame_size_calculator::do_print_node(l22::print_node *const node, int 
 }
 void l22::frame_size_calculator::do_program_node(l22::program_node *const node, int lvl)
 {
-    /* EMPTY */
+    if (node->statements())
+    {
+        _localsize += 4;
+        node->statements()->accept(this, lvl + 2);
+    }
 }
 void l22::frame_size_calculator::do_read_node(l22::read_node *const node, int lvl)
 {
@@ -193,7 +197,14 @@ void l22::frame_size_calculator::do_stop_node(l22::stop_node *const node, int lv
 }
 void l22::frame_size_calculator::do_variable_declaration_node(l22::variable_declaration_node *const node, int lvl)
 {
-    _localsize += node->type()->size();
+    std::cerr << node->type() << std::endl;
+
+    if (node->type() == nullptr)
+    {
+        _localsize += 8;
+    }
+    else
+        _localsize += node->type()->size();
 }
 void l22::frame_size_calculator::do_while_node(l22::while_node *const node, int lvl)
 {

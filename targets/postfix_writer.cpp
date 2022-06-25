@@ -94,7 +94,33 @@ void l22::postfix_writer::do_function_call_node(l22::function_call_node *const n
 }
 void l22::postfix_writer::do_function_definition_node(l22::function_definition_node *const node, int lvl)
 {
-  /* EMPTY */
+  ASSERT_SAFE_EXPRESSIONS;
+
+  int lbl1 = ++_flbl;
+  _function = new_symbol();
+  reset_new_symbol();
+  _offset = 8;
+  _symtab.push();
+  if (node->arguments())
+  {
+    _inFunctionArgs = true;
+    node->arguments()->accept(this, lvl + 2);
+    _inFunctionArgs = false;
+  }
+  _pf.TEXT();
+  _pf.ALIGN();
+  _pf.LABEL(mklblf(lbl1));
+  frame_size_calculator lsc(_compiler, _symtab);
+  node->accept(&lsc, lvl);
+  _pf.ENTER(lsc.localsize());
+  _inFunctionBody = true;
+  _offset = 0;
+  node->block()->accept(this, lvl + 4);
+  _inFunctionBody = false;
+  _symtab.pop();
+
+  _pf.LEAVE();
+  _pf.RET();
 }
 void l22::postfix_writer::do_index_node(l22::index_node *const node, int lvl)
 {
@@ -137,8 +163,13 @@ void l22::postfix_writer::do_return_node(l22::return_node *const node, int lvl)
 }
 void l22::postfix_writer::do_sizeof_node(l22::sizeof_node *const node, int lvl)
 {
+  std::cerr << "sizeof" << std::endl;
+
   ASSERT_SAFE_EXPRESSIONS;
+  std::cerr << node->expression()->type()->size() << std::endl;
+
   _pf.INT(node->expression()->type()->size());
+  _pf.ADD();
 }
 void l22::postfix_writer::do_stack_alloc_node(l22::stack_alloc_node *const node, int lvl)
 {
@@ -717,6 +748,7 @@ void l22::postfix_writer::do_program_node(l22::program_node *const node, int lvl
   _pf.ENTER(lsc.localsize());
 
   _inFunctionBody = true;
+  _offset = 0;
   node->statements()->accept(this, lvl);
   _inFunctionBody = false;
 
@@ -759,8 +791,13 @@ void l22::postfix_writer::do_evaluation_node(l22::evaluation_node *const node, i
 
 void l22::postfix_writer::do_print_node(l22::print_node *const node, int lvl)
 {
+
   ASSERT_SAFE_EXPRESSIONS;
+  std::cerr << "print" << std::endl;
+
   node->argument()->accept(this, lvl);
+  std::cerr << "print2" << std::endl;
+
   for (size_t i = 0; i < node->argument()->size(); i++)
   {
     cdk::expression_node *expression = dynamic_cast<cdk::expression_node *>(node->argument()->node(i));
